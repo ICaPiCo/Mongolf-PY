@@ -1,7 +1,7 @@
 import pyxel
 from math import *
 
-screen_x,screen_y = 192, 120
+screen_x,screen_y = int(1920/4), int(1200/4)
 
 class Balloon:
     xAxis=0
@@ -40,6 +40,7 @@ class Balloon:
         
     def draw(self):
         pyxel.cls(0)
+        pyxel.blt(0, 0, (1), 0, 0, 256, 256, colkey=0, scale=self.scale+1)
         imgX, imgY = self.getSpriteCenter()
         imgY+=10
         pyxel.blt(imgX, imgY, (0), 0, 0, 8, 8, colkey=0, scale=self.scale+1, rotate=self.rotation)
@@ -62,27 +63,27 @@ class Balloon:
         imgY-=self.yAxis
         imgX-=self.xAxis
 
-        pyxel.blt(imgX, imgY, (0), 24, 0, 8, 8, colkey=0, scale=self.scale+4, rotate=self.rotation)
+        pyxel.blt(imgX, imgY, (0), 24, 0, 8, 8, colkey=0, scale=self.scale+6, rotate=self.rotation)
         imgY-=self.yAxis
         imgX-=self.xAxis
 
-        pyxel.blt(imgX, imgY, (0), 24, 8, 8, 8, colkey=0, scale=self.scale+4, rotate=self.rotation)
+        pyxel.blt(imgX, imgY, (0), 24, 8, 8, 8, colkey=0, scale=self.scale+6, rotate=self.rotation)
         imgY-=self.yAxis
         imgX-=self.xAxis
 
-        pyxel.blt(imgX, imgY, (0), 32, 0, 8, 8, colkey=0, scale=self.scale+4, rotate=self.rotation)
+        pyxel.blt(imgX, imgY, (0), 32, 0, 8, 8, colkey=0, scale=self.scale+6, rotate=self.rotation)
         imgY-=self.yAxis
         imgX-=self.xAxis
 
-        pyxel.blt(imgX, imgY, (0), 24, 8, 8, 8, colkey=0, scale=self.scale+4, rotate=self.rotation)
+        pyxel.blt(imgX, imgY, (0), 24, 8, 8, 8, colkey=0, scale=self.scale+6, rotate=self.rotation)
         imgY-=self.yAxis
         imgX-=self.xAxis
 
-        pyxel.blt(imgX, imgY, (0), 24, 0, 8, 8, colkey=0, scale=self.scale+4, rotate=self.rotation)
+        pyxel.blt(imgX, imgY, (0), 24, 0, 8, 8, colkey=0, scale=self.scale+6, rotate=self.rotation)
         imgY-=self.yAxis
         imgX-=self.xAxis
 
-        pyxel.blt(imgX, imgY, (0), 16, 8, 8, 8, colkey=0, scale=self.scale+4, rotate=self.rotation)
+        pyxel.blt(imgX, imgY, (0), 16, 8, 8, 8, colkey=0, scale=self.scale+6, rotate=self.rotation)
         imgY-=self.yAxis
         imgX-=self.xAxis
 
@@ -108,6 +109,6 @@ class Balloon:
 
 mongol = Balloon("mongol")
 
-pyxel.init(screen_x, screen_y, title="MONGO", display_scale=9)
+pyxel.init(screen_x, screen_y, title="MONGO", display_scale=3)
 pyxel.load("my_resource.pyxres")
 pyxel.run(mongol.update,mongol.draw)
