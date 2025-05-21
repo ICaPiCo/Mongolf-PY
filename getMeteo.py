@@ -185,3 +185,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# we need to sort data into lists for speed, lists for dir, with same indexes
