@@ -7,8 +7,8 @@ LYR_CNT = 3
 
 class Background:
     def __init__(self):
-        self.x = -128  # Start in the middle of the screen
-        self.y = -128
+        self.x = 0  # Start in the middle of the screen
+        self.y = 0
         self.scale = 2
         self.direction = 0
         self.speed = 0
@@ -78,12 +78,12 @@ class tile_grid:
     
     def screen_to_grid(self, screen_x, screen_y):
         """Convert screen coordinates to grid coordinates"""
-        # Account for background position and scale
+        
         bg = self.background_equivalent
-        if bg.scale == 0:  # Prevent division by zero
+        if bg.scale == 0: 
             return -1, -1
             
-        # Calculate relative position on the map
+        
         rel_x = (screen_x - bg.x) / bg.scale
         rel_y = (screen_y - bg.y) / bg.scale
         
@@ -107,7 +107,7 @@ class tile_grid:
             
         bg = self.background_equivalent
         
-        # Calculate visible area boundaries
+        
         start_x = max(0, int(-bg.x / bg.scale))
         end_x = min(256, int((256 - bg.x) / bg.scale))
         start_y = max(0, int(-bg.y / bg.scale))
@@ -134,13 +134,13 @@ class tile_grid:
             cell_y = bg.y + self.hover_y * bg.scale
             cell_size = bg.scale
             
-            # Draw rectangle around the hovered cell
+            
             pyxel.rectb(cell_x, cell_y, cell_size, cell_size, 8)  # Color 8 is red
             
-            # Calculate grid index
+            
             grid_index = self.hover_y * 256 + self.hover_x
             
-            # Get vector data for the current position if it exists
+            
             vector_info = "No vector data"
             if 0 <= grid_index < 256**2 and len(self.weather_data[self.current_layer]) > grid_index and self.weather_data[self.current_layer][grid_index]:
                 speed, direction = self.weather_data[self.current_layer][grid_index]
@@ -149,7 +149,7 @@ class tile_grid:
             # Display information
             info_text = f"Grid: ({self.hover_x},{self.hover_y})\nIndex: {grid_index}\nLayer: {self.current_layer}\n{vector_info}"
             
-            # Position the text box
+            
             text_x = 5
             text_y = 35
             
@@ -171,19 +171,19 @@ class tile_grid:
     def __str__(self):
         return str(self.weather_data[0][:10])
 
-# Initialize grid
+
 grid = tile_grid()
 
 def update():
-    # Check for quit
+    
     if pyxel.btnp(pyxel.KEY_Q) and pyxel.btn(pyxel.KEY_CTRL):
         pyxel.quit()
     
-    # Toggle grid visibility with G key
+    
     if pyxel.btnp(pyxel.KEY_G):
         grid.toggle_grid()
     
-    # Cycle through layers with L key
+    
     if pyxel.btnp(pyxel.KEY_L):
         grid.cycle_layer()
     
