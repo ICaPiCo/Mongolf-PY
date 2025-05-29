@@ -31,7 +31,9 @@ class Player:
         self.x = 400
         self.y = 280
         self.bulletSpeed = 20
+        self.smokeSpeed = 2
         self.shots = []
+        self.particles = []
         self.enemies = enemies
 
     def shootNow(self):
@@ -52,6 +54,39 @@ class Player:
                     break
         self.shots = [shot for shot in self.shots if shot[1] > -10 and shot[2] == False]
 
+    def getDistance(self, object1, object2):
+        return math.sqrt((object1[0] - object2[0])**2 + (object1[1] - object2[1])**2)
+
+    def powerSmoke(self):
+        if pyxel.frame_count % 2 == 0:
+            self.particles.append([self.x+8, self.y+14, False])
+
+        for particle in self.particles:
+            particle[1] += self.smokeSpeed
+
+        self.particles = [particle for particle in self.particles if particle[1] < pyxel.width+20 and particle[2] == False]
+
+        for particle in self.particles:
+            particleDistance = self.getDistance((particle[0], particle[1]), (self.x+8, self.y+14))
+            if  particleDistance < 10:
+                pyxel.circ(particle[0], particle[1], random.randint(1,3), 7)
+            elif particleDistance < 15:
+                pyxel.circ(particle[0], particle[1], random.randint(4, 6), 8)
+            elif particleDistance < 25:
+                pyxel.circ(particle[0], particle[1], random.randint(7, 9), 9)
+            elif particleDistance < 35:
+                pyxel.circ(particle[0], particle[1], random.randint(3, 5), 10)
+            elif particleDistance < 60:
+                pyxel.dither(random.randint(5, 10) / 10)
+                pyxel.circ(random.randint(particle[0]-5,particle[0]+5), random.randint(particle[1]-5,particle[1]+5), random.randint(2, 4), 13)
+                pyxel.dither(1)
+            elif particleDistance < 65:
+                pyxel.dither(random.randint(0, 5) / 10)
+                pyxel.circ(random.randint(particle[0]-2,particle[0]+2), random.randint(particle[1]-2,particle[1]+2), random.randint(2, 4), 13)
+                pyxel.dither(1)
+            else:
+                particle[2] = True
+
     def update(self):
         self.updateBullets()
         if pyxel.btn(pyxel.KEY_UP):
@@ -68,6 +103,7 @@ class Player:
     def draw(self):
         for shot in self.shots:
             pyxel.blt(shot[0],shot[1],0,32,0,16,16,colkey=0, scale=2)
+        self.powerSmoke()
         pyxel.blt(self.x, self.y, 0, 0, 0, 16, 16, 0, scale=2)
 
 class Enemies:
@@ -112,6 +148,6 @@ class Terrain:
 
     def draw(self):
         for star in self.stars:
-            pyxel.circ(star[0], star[1], random.randint(star[2]-5,star[2]-3), random.choice((pyxel.COLOR_WHITE,pyxel.COLOR_ORANGE,pyxel.COLOR_CYAN,pyxel.COLOR_GREEN,pyxel.COLOR_LIGHT_BLUE,pyxel.COLOR_LIME,pyxel.COLOR_PEACH,pyxel.COLOR_PINK, pyxel.COLOR_PURPLE, pyxel.COLOR_RED)))
+            pyxel.circ(star[0], star[1], random.randint(star[2]-5,star[2]-3), pyxel.COLOR_WHITE)
         
 Game()
