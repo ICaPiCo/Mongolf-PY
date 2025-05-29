@@ -1,256 +1,65 @@
-"""
-Meteo-Parapente Windgram Data Fetcher
-
-This script fetches and displays wind data from Meteo-Parapente's API, focusing on wind speed
-and direction at different altitudes, as well as cloud cover and other meteorological data.
-
-The script can be used to get forecasts for paragliding or other weather-dependent activities.
-"""
-
 import requests
 import json
 import math
 from datetime import datetime, timedelta, timezone
-import argparse
+from time import sleep
 
+fullWeather=[]
+fullPositions=[]
+lat=68.841464
+lon=-33.214573
 
-def get_latest_run_time():
+def get_windgram_table(location="45.5043,5.834", forecast_date=None, run_time=None, debug=False):
     """
-    Determines the latest available model run time.
-    
-    Meteo-Parapente updates their models at specific times of the day (18Z run).
-    This function calculates which run is likely to be available based on current time.
-    
-    Returns:
-        str: Date string in format 'YYYYMMDD18' representing the run time
-    """
-    now = datetime.now(timezone.utc)
-    # Use 18Z run from yesterday or day before yesterday based on current time
-    run_date = now.date() - timedelta(days=1 if now.hour >= 20 else 2)
-    return run_date.strftime('%Y%m%d') + '18'
-
-
-def fetch_windgram_data(run_time, location, forecast_date):
-    """
-    Fetches windgram data from Meteo-Parapente API for specified parameters.
+    Fetches windgram data and returns a structured table with wind data.
     
     Args:
-        run_time (str): Model run time (format: YYYYMMDD18)
-        location (str): Location coordinates as "lat,lon"
-        forecast_date (str): Date for forecast (format: YYYYMMDD)
-    
+        location (str): Location as "lat,lon"
+        forecast_date (str, optional): Forecast date in YYYYMMDD format
+        run_time (str, optional): Model run time in YYYYMMDD18 format
+        debug (bool): Print debug information
+        
     Returns:
-        dict: JSON data from API or None if request fails
+        list: Nested list structure [[[hour],[altitude],[speed],[direction]], [...]]
     """
-    url = "https://data0.meteo-parapente.com/data.php"
+    # Set defaults if not specified
+    if run_time is None:
+        run_time = get_latest_run_time()
     
-    # Try both parameter sets that might work (API might have different parameter formats)
-    params_options = [
-        {'run': run_time, 'location': location, 'date': forecast_date, 'plot': 'windgram', 'format': 'json'},
-        {'run': run_time, 'location': location, 'date': forecast_date, 'type': 'windgram', 'mode': 'data'}
-    ]
+    if forecast_date is None:
+        tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+        forecast_date = tomorrow.strftime('%Y%m%d')
     
-    print(f"Requesting data for run: {run_time}, location: {location}, date: {forecast_date}")
+    if debug:
+        print(f"Requesting data for location: {location}, date: {forecast_date}, run: {run_time}")
     
-    # Try each parameter option until one works
-    for params in params_options:
-        try:
-            response = requests.get(url, params=params, timeout=30)
-            if response.status_code == 200:
-                try:
-                    return response.json()
-                except json.JSONDecodeError:
-                    continue  # Try next parameter set if JSON parsing fails
-        except requests.exceptions.RequestException:
-            continue  # Try next parameter set if request fails
+    # Fetch data
+    data = fetch_windgram_data(run_time, location, forecast_date, debug=debug)
     
-    print("Failed to retrieve data")
-    return None
-
-
-def get_wind_arrow(degrees):
-    """
-    Returns an arrow character representing wind direction.
-    
-    Args:
-        degrees (float): Wind direction in meteorological degrees (0=N, 90=E, etc.)
-    
-    Returns:
-        str: Arrow character pointing in the direction the wind is coming FROM
-    """
-    arrows = {0: "↓", 45: "↙", 90: "←", 135: "↖", 180: "↑", 225: "↗", 270: "→", 315: "↘"}
-    closest = min(arrows.keys(), key=lambda x: abs((degrees - x + 180) % 360 - 180))
-    return arrows[closest]
-
-
-def format_windgram_data(data):
-    """
-    Formats the windgram data for display in a readable text format.
-    
-    Args:
-        data (dict): JSON data from Meteo-Parapente API
-    
-    Returns:
-        str: Formatted string representation of the data
-    """
     if not data:
-        return "No data to display"
+        if debug:
+            print("No data returned from API")
+        return []
     
-    output = []
-    output.append("===== METEO-PARAPENTE WINDGRAM DATA =====")
+    if debug:
+        print(f"Raw data keys: {list(data.keys()) if isinstance(data, dict) else 'Not a dict'}")
+        if isinstance(data, dict):
+            if 'error' in data:
+                print(f"API Error: {data['error']}")
+            if 'data' in data:
+                print(f"Data structure keys: {list(data['data'].keys())[:5]}...")  # Show first 5 keys
     
-    # Location info
-    if 'gridCoords' in data:
-        grid = data['gridCoords']
-        output.append(f"\nLOCATION: {grid.get('lat', 'Unknown')}, {grid.get('lon', 'Unknown')}")
+    if 'data' not in data:
+        if debug:
+            print("'data' key not found in response")
+            if isinstance(data, dict) and 'error' in data:
+                print(f"Error message: {data['error']}")
+        return []
     
-    # Process hourly data
-    if 'data' in data and isinstance(data['data'], dict):
-        hours = sorted(data['data'].keys())  # Sort hours chronologically
-        
-        if hours:
-            output.append("\nHOURLY FORECAST DATA:")
-            
-            # Create header for wind table
-            header = "Hour     "
-            levels = [0, 500, 1000, 1500, 2000, 2500, 3000]  # Altitude levels in meters
-            for level in levels:
-                header += f"| {level}m         "
-            header += "| Rain  | PBL"  # PBL = Planetary Boundary Layer
-            output.append(header)
-            output.append("-" * len(header))
-            
-            # Process each hour's data
-            for hour in hours:
-                hour_data = data['data'][hour]
-                
-                # Get height levels and wind components
-                z_levels = hour_data.get('z', [])  # Altitude levels
-                u_wind = hour_data.get('umet', [])  # West-East component (u)
-                v_wind = hour_data.get('vmet', [])  # South-North component (v)
-                
-                row = f"{hour:<8}"
-                
-                # Add wind for levels of interest
-                if z_levels and u_wind and v_wind:
-                    for target_height in levels:
-                        # Find closest height level to our target
-                        if not z_levels:
-                            row += "| N/A           "
-                            continue
-                            
-                        closest_idx = min(range(len(z_levels)), key=lambda i: abs(z_levels[i] - target_height))
-                        
-                        if closest_idx < len(u_wind) and closest_idx < len(v_wind):
-                            u = u_wind[closest_idx]
-                            v = v_wind[closest_idx]
-                            
-                            # Calculate wind speed and direction
-                            speed = ((u**2 + v**2)**0.5) * 3.6  # Convert m/s to km/h
-                            direction = (270 - math.degrees(math.atan2(v, u))) % 360  # Calculate meteorological direction
-                            arrow = get_wind_arrow(direction)
-                            
-                            row += f"| {speed:.1f}km/h {arrow:<3} "
-                        else:
-                            row += "| N/A           "
-                else:
-                    for _ in levels:
-                        row += "| N/A           "
-                
-                # Add precipitation and PBL height
-                rain = hour_data.get('raintot', 0)  # Total precipitation
-                pbl = hour_data.get('pblh', 0)      # Planetary Boundary Layer height
-                row += f"| {rain:.1f}mm | {pbl:.0f}m"
-                output.append(row)
-            
-            # Add cloud cover section if data available
-            cloud_data = []
-            for hour in hours:
-                hour_data = data['data'][hour]
-                if 'cfrach' in hour_data or 'cfracl' in hour_data or 'cfracm' in hour_data:
-                    low = hour_data.get('cfracl', 0)   # Low cloud cover fraction
-                    mid = hour_data.get('cfracm', 0)   # Medium cloud cover fraction
-                    high = hour_data.get('cfrach', 0)  # High cloud cover fraction
-                    cloud_data.append((hour, low, mid, high))
-            
-            if cloud_data:
-                output.append("\nCLOUD COVER:")
-                header = f"{'Hour':<8} | {'Low':<8} | {'Mid':<8} | {'High':<8} | {'Total':<8}"
-                output.append(header)
-                output.append("-" * len(header))
-                
-                for hour, low, mid, high in cloud_data:
-                    total = min(10, low + mid + high)  # Cap total cloud cover at 10/10
-                    row = f"{hour:<8} | {low:<8.1f} | {mid:<8.1f} | {high:<8.1f} | {total:<8.1f}"
-                    output.append(row)
+    result = []
     
-    output.append("\n=========================================")
-    return "\n".join(output)
-
-
-def extract_wind_vectors(hour_data):
-    """
-    Extracts wind speeds and directions from a single hour's data.
-    
-    Args:
-        hour_data (dict): Data for a specific hour from the API
-        
-    Returns:
-        tuple: Two lists containing wind speeds (km/h) and directions (degrees)
-    """
-    z = hour_data.get('z', [])      # Height levels
-    u = hour_data.get('umet', [])   # West-East component
-    v = hour_data.get('vmet', [])   # South-North component
-    
-    wind_speeds = []
-    wind_dirs = []
-
-    for i in range(min(len(z), len(u), len(v))):
-        speed = (u[i]**2 + v[i]**2)**0.5 * 3.6  # Convert m/s to km/h
-        direction = (270 - math.degrees(math.atan2(v[i], u[i]))) % 360  # Meteorological direction
-
-        wind_speeds.append(speed)
-        wind_dirs.append(direction)
-
-    return wind_speeds, wind_dirs
-
-
-def extract_wind_data(data, altitude=None):
-    """
-    Extracts organized wind data for all hours at specified altitude or all altitudes.
-    
-    Args:
-        data (dict): JSON data from Meteo-Parapente API
-        altitude (float, optional): Target altitude in meters. If None, returns data for all altitudes.
-    
-    Returns:
-        dict: Dictionary with keys: 'hours', 'altitudes', 'speeds', 'directions'
-              Each containing lists of corresponding data points.
-              
-              If altitude is specified, returns simpler dict with keys:
-              'hours', 'speeds', 'directions' for that altitude only.
-    """
-    if not data or 'data' not in data:
-        return None
-    
-    result = {
-        'hours': [],
-        'altitudes': [],
-        'speeds': [],
-        'directions': []
-    }
-    
-    # If specific altitude requested, simplify the result structure
-    if altitude is not None:
-        result = {
-            'hours': [],
-            'speeds': [],
-            'directions': []
-        }
-    
-    # Sort hours chronologically
+    # Process each hour
     hours = sorted(data['data'].keys())
-    
     for hour in hours:
         hour_data = data['data'][hour]
         
@@ -259,87 +68,190 @@ def extract_wind_data(data, altitude=None):
         u_wind = hour_data.get('umet', [])
         v_wind = hour_data.get('vmet', [])
         
-        # Skip if missing data
         if not z_levels or not u_wind or not v_wind:
             continue
-        
-        # If specific altitude requested, find closest data point
-        if altitude is not None:
-            if not z_levels:
-                continue
-                
-            closest_idx = min(range(len(z_levels)), key=lambda i: abs(z_levels[i] - altitude))
             
-            if closest_idx < len(u_wind) and closest_idx < len(v_wind):
-                u = u_wind[closest_idx]
-                v = v_wind[closest_idx]
+        # Create a record for this hour
+        hour_altitudes = []
+        hour_speeds = []
+        hour_directions = []
+        
+        for i in range(len(z_levels)):
+            if i < len(u_wind) and i < len(v_wind):
+                altitude = z_levels[i]
+                u = u_wind[i]
+                v = v_wind[i]
                 
                 # Calculate wind speed and direction
                 speed = ((u**2 + v**2)**0.5) * 3.6  # m/s to km/h
                 direction = (270 - math.degrees(math.atan2(v, u))) % 360
                 
-                result['hours'].append(hour)
-                result['speeds'].append(speed)
-                result['directions'].append(direction)
-        else:
-            # Add all altitudes and corresponding wind data
-            speeds, directions = extract_wind_vectors(hour_data)
-            
-            result['hours'].append(hour)
-            result['altitudes'].append(z_levels)
-            result['speeds'].append(speeds)
-            result['directions'].append(directions)
+                hour_altitudes.append(altitude)
+                hour_speeds.append(round(speed, 1))
+                hour_directions.append(round(direction, 1))
+        
+        # Only add if we have data
+        if hour_altitudes:
+            result.append([[hour], hour_altitudes, hour_speeds, hour_directions])
     
     return result
 
+def get_latest_run_time():
+    """Determines the latest available model run time."""
+    now = datetime.now(timezone.utc)
+    # Try different run times - sometimes data isn't available for the latest run
+    possible_runs = []
+    
+    # Try different days and different run times (00Z, 06Z, 12Z, 18Z)
+    for days_back in range(1, 4):  # Try 1-3 days back
+        run_date = now.date() - timedelta(days=days_back)
+        for run_hour in ['18', '12', '06', '00']:
+            possible_runs.append(run_date.strftime('%Y%m%d') + run_hour)
+    
+    return possible_runs[0]  # Return the first one for now, but we'll try multiple
 
-def main():
+def fetch_windgram_data(run_time, location, forecast_date, debug=False):
+    """Fetches windgram data for specified parameters."""
+    url = "https://data0.meteo-parapente.com/data.php"
+    
+    # Try both parameter sets that might work
+    params_options = [
+        {'run': run_time, 'location': location, 'date': forecast_date, 'plot': 'windgram', 'format': 'json'},
+        {'run': run_time, 'location': location, 'date': forecast_date, 'type': 'windgram', 'mode': 'data'},
+        {'run': run_time, 'lat': location.split(',')[0], 'lon': location.split(',')[1], 'date': forecast_date, 'plot': 'windgram'},
+        {'model': 'gfs', 'run': run_time, 'location': location, 'date': forecast_date, 'type': 'windgram'},
+        # Try with different model names
+        {'model': 'gfs25', 'run': run_time, 'location': location, 'date': forecast_date, 'plot': 'windgram', 'format': 'json'},
+        {'model': 'ecmwf', 'run': run_time, 'location': location, 'date': forecast_date, 'plot': 'windgram', 'format': 'json'},
+    ]
+    
+    # If we have run_time issues, try multiple run times    
+    if debug and 'error' in str(run_time).lower():
+        print("Trying multiple run times...")
+        now = datetime.now(timezone.utc)
+        for days_back in range(1, 4):
+            for run_hour in ['18', '12', '06', '00']:
+                alt_run_time = (now.date() - timedelta(days=days_back)).strftime('%Y%m%d') + run_hour
+                params_options.append({'run': alt_run_time, 'location': location, 'date': forecast_date, 'plot': 'windgram', 'format': 'json'})
+    
+    for i, params in enumerate(params_options):
+        try:
+            if debug:
+                print(f"Trying parameter set {i+1}: {params}")
+            
+            response = requests.get(url, params=params, timeout=30)
+            
+            if debug:
+                print(f"Response status: {response.status_code}")
+                print(f"Response content length: {len(response.content)}")
+                if response.status_code != 200:
+                    print(f"Response text: {response.text[:200]}...")
+            
+            if response.status_code == 200:
+                try:
+                    json_data = response.json()
+                    if debug:
+                        print(f"Successfully parsed JSON with keys: {list(json_data.keys()) if isinstance(json_data, dict) else 'Not a dict'}")
+                        if isinstance(json_data, dict) and 'error' in json_data:
+                            print(f"API returned error: {json_data['error']}")
+                        if isinstance(json_data, dict) and 'data' in json_data:
+                            print(f"SUCCESS: Found data key!")
+                            return json_data
+                    
+                    # Only return if it actually has data, not just an error
+                    if isinstance(json_data, dict) and 'data' in json_data:
+                        return json_data
+                        
+                except json.JSONDecodeError as e:
+                    if debug:
+                        print(f"JSON decode error: {e}")
+                        print(f"Response text: {response.text[:500]}...")
+                    continue
+        except requests.exceptions.RequestException as e:
+            if debug:
+                print(f"Request error: {e}")
+            continue
+    
+    if debug:
+        print("All parameter sets failed")
+    return None
+
+def save_data_to_files(weather_data, positions_data, weather_filename="weather_data.json", positions_filename="positions_data.json"):
     """
-    Main function to process command line arguments and execute the program.
+    Save weather and positions data to separate JSON files.
+    
+    Args:
+        weather_data (list): The fullWeather data
+        positions_data (list): The fullPositions data
+        weather_filename (str): Filename for weather data
+        positions_filename (str): Filename for positions data
     """
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Fetch windgram data from Meteo-Parapente')
-    parser.add_argument('--location', default="45.5043,5.834", help='Location as "lat,lon"')
-    parser.add_argument('--date', help='Forecast date (YYYYMMDD)')
-    parser.add_argument('--run', help='Model run time (YYYYMMDD18)')
-    parser.add_argument('--save', action='store_true', help='Save raw JSON data')
-    parser.add_argument('--raw', action='store_true', help='Display raw JSON')
-    
-    args = parser.parse_args()
-    
-    # Set defaults if not specified
-    location = args.location
-    run_time = args.run if args.run else get_latest_run_time()
-    
-    if args.date:
-        forecast_date = args.date
-    else:
-        tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
-        forecast_date = tomorrow.strftime('%Y%m%d')
-    
-    # Fetch and process data
-    data = fetch_windgram_data(run_time, location, forecast_date)
-    
-    if data:
-        # Save JSON if requested
-        if args.save:
-            filename = f"windgram_{location.replace(',', '_')}_{forecast_date}.json"
-            try:
-                with open(filename, 'w') as f:
-                    json.dump(data, f, indent=2)
-                print(f"Data saved to {filename}")
-            except Exception as e:
-                print(f"Error saving data: {e}")
+    try:
+        # Save weather data
+        with open(weather_filename, 'w') as f:
+            json.dump(weather_data, f, indent=2)
+        print(f"Weather data saved to {weather_filename}")
         
-        # Display data
-        if args.raw:
-            print("\n===== RAW JSON =====")
-            print(json.dumps(data, indent=2)[:2000] + "..." if len(json.dumps(data, indent=2)) > 2000 else json.dumps(data, indent=2))
-        else:
-            print("\n" + format_windgram_data(data))
-    else:
-        print("\nNo data retrieved. Please check your inputs and connection.")
+        # Save positions data
+        with open(positions_filename, 'w') as f:
+            json.dump(positions_data, f, indent=2)
+        print(f"Positions data saved to {positions_filename}")
+        
+    except Exception as e:
+        print(f"Error saving data: {e}")
 
-
+# Example usage:
 if __name__ == "__main__":
-    main()
+    wind_data = get_windgram_table()
+    print(wind_data)
+
+#[[[hour],[altitude],[speed],[direction]],[[hour],[altitude],[speed],[direction]]]
+#4950km
+#68.732386, 38.549185 (up right)
+#24.707283, 37.255776 (bottom right)
+#68.841464, -33.214573 (up left)
+
+#right to left = 0; -33.214573 -> 38.549185 -> <-> 71,763758 = 7950km = 256px longitude 1px = 0,2803271796875°
+#up to down = 68.786925 -> 24.707283 -> 44,079642 <->  = 7950km = 256px latitude 1px = 0,1721861015625°
+# longitude = 0,2803271796875 * 32 = 8,9704
+# latitude = 0,1721861015625 * 32 = 5,51
+
+print("Starting data collection...")
+
+# Test with the first position to see what's happening
+test_lat = 68.841464
+test_lon = -33.214573 + 0.2803271796875 * (0-1)
+print(f"Testing with first position: lat={test_lat:.6f}, lon={test_lon:.6f}")
+test_weather = get_windgram_table(f"{test_lat},{test_lon}", debug=True)
+print(f"Test result length: {len(test_weather)}")
+if test_weather:
+    print(f"Sample data: {test_weather[0] if test_weather else 'No data'}")
+
+print("\nStarting full data collection...")
+for y in range(8):
+    for i in range(8):
+        lon = -33.214573 + 0.2803271796875 * (i-1)
+        print(f"Fetching data for position {len(fullPositions) + 1}/64: lat={lat:.6f}, lon={lon:.6f}")
+        
+        weather = get_windgram_table(f"{lat},{lon}")
+        fullWeather.append(weather)
+        fullPositions.append([lat, lon])
+        
+        # Add more info about the result
+        if weather:
+            print(f"  -> Got {len(weather)} time periods")
+        else:
+            print(f"  -> No data returned")
+        
+        # Optional: Add a small delay to be respectful to the API
+        sleep(0.5)
+        
+    lat = 68.841464 - 0.1721861015625 * (y+1)  # Fixed the indexing issue
+
+print("Data collection complete!")
+print(f"Collected data for {len(fullPositions)} positions")
+
+# Save the collected data to files
+save_data_to_files(fullWeather, fullPositions)
+
+print("All data saved to files successfully!")
