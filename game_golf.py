@@ -241,3 +241,5 @@ class Golf:
             if end not in positions:
                 positions.append(end)
         return positions
+
+#Golf()
