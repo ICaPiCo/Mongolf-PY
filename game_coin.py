@@ -3,14 +3,28 @@ import random  # <-- ADDED
 
 class Coin:
     def __init__(self):
+        """
+        Initializes a new instance of the Coin class.
+        
+        Sets up the initial game state, including the coin positions, player position, score, and time left.
+        
+        No parameters are taken, and no value is returned.
+        """
         self.coins = [[random.randint(0, 600), random.randint(0, 400)] for _ in range(10)]
         self.score = 0
         self.time_left = 30
-        self.player_x = pyxel.width//2  # <-- ADDED
-        self.player_y = pyxel.height//2  # <-- ADDED
+        self.player_x = pyxel.width//2
+        self.player_y = pyxel.height//2 
         self.done = False
 
     def update(self):
+        """
+        Updates the game state based on user input and game logic.
+
+        Checks for keyboard input to move the player, collision with coins, and updates the score and time left accordingly.
+
+        No parameters are taken, and no value is returned.
+        """
         if pyxel.btn(pyxel.KEY_LEFT):  # <-- CHANGED to btn() for smooth movement
             self.player_x -= 3  # <-- ADDED self.
         if pyxel.btn(pyxel.KEY_RIGHT):
@@ -36,6 +50,11 @@ class Coin:
             pyxel.quit()
 
     def draw(self):
+        """
+        Draws the current state of the game, including coins, the player, and the game UI.
+
+        No parameters are taken, and no value is returned.
+        """
         pyxel.cls(0)  # Clear screen
         # Draw coins
         for x, y in self.coins:

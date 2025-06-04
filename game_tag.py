@@ -5,6 +5,15 @@ import time
 
 class ball():
     def __init__(self, n):
+        """
+        Initializes a ball object with the given player number.
+        
+        Parameters:
+            n (int): The player number (1 or 2) to determine the starting position.
+        
+        Returns:
+            None
+        """
         self.bX = 20 if n == 1 else 235 # Different starting positions
         self.bY = 228
         self.bvX = 0
@@ -16,6 +25,15 @@ class ball():
         self.tag = 0
 
     def controls(self):
+        """
+        Handles the controls for a ball object based on the player number.
+        
+        Parameters:
+            None
+        
+        Returns:
+            None
+        """
         if self.player == 2:  # Arrow keys for player 1
             if pyxel.btnp(pyxel.KEY_UP):
                 if self.jump > 0:
@@ -202,6 +220,20 @@ class terrain():
 
 class Tag:
     def __init__(self):
+        """
+        Initializes a new instance of the Tag class.
+        
+        Loads the necessary resources from the "tag.pyxres" file and sets up the 
+        initial state of the game, including the creation of two ball objects and 
+        a terrain object. It also initializes various game state variables, such 
+        as the game over status, timer, and start time.
+        
+        Parameters:
+            None
+        
+        Returns:
+            None
+        """
         pyxel.load("tag.pyxres")  # Make sure this file exists
         
         # Create instances as class attributes
@@ -219,6 +251,18 @@ class Tag:
         self.startTime = time.monotonic()*100
 
     def timer(self):
+        """
+        Updates and displays the game timer.
+
+        Calculates the elapsed time since the game started and updates the remaining time.
+        If the elapsed time exceeds 50 seconds, the remaining time is set to 0.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         self.currentTime = time.monotonic()*100
         
         self.timerIs = (int(self.currentTime) - int(self.startTime))/100

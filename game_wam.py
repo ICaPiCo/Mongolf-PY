@@ -4,6 +4,18 @@ import random
 
 class Wam:
     def __init__(self):
+        """
+        Initializes a new instance of the Wam class.
+
+        Enables the mouse for user input, sets up the initial state of the moles,
+        and initializes the game's score, time left, and done status.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         pyxel.mouse(True)
         self.moles = [
             {"x": 40, "y": 50, "visible": 0, "points": 1},
@@ -18,6 +30,16 @@ class Wam:
         self.done = False
 
     def update(self):
+        """
+        Updates the game state by randomly showing moles, updating mole visibility, 
+        checking for mouse clicks, and updating the timer.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         # Randomly show moles
         if pyxel.frame_count % 80 == 0:  # Every half second
             mole = random.choice(self.moles)
@@ -49,6 +71,15 @@ class Wam:
             self.done = True
 
     def draw(self):
+        """
+        Draws the current state of the game, including holes, visible moles, and the user interface.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         pyxel.cls(0)
         
         # Draw holes (brown circles)

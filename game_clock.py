@@ -4,6 +4,18 @@ import random
 
 class Clock:
     def __init__(self):
+        """
+        Initializes a new instance of the Clock class, setting up the initial game state.
+        
+        Sets the target time to a random value between 5 and 20 seconds, records the start time, 
+        and initializes other game state variables to their default values.
+        
+        Parameters:
+            None
+        
+        Returns:
+            None
+        """
         self.target_time = random.randint(5, 20)
         self.start_time = time.time()
         self.current_time = 0.0
@@ -17,6 +29,18 @@ class Clock:
         self.done = False
 
     def update(self):
+        """
+        Updates the game clock state.
+
+        Checks if the timer should start fading based on the target time, calculates the fade progress,
+        and updates the fade alpha value accordingly. Also handles manual stop and game over states.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         if not self.stopped and not self.game_over:
             self.current_time = time.time() - self.start_time
             
@@ -48,7 +72,17 @@ class Clock:
                     self.done = True
                     
     def restart_game(self):
-        """Reset the game state"""
+        """
+        Resets the game state to its initial values.
+
+        Randomly generates a new target time, resets the start time, current time, and other game state variables.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         self.target_time = random.randint(5, 20)  # New random target
         self.start_time = time.time()
         self.current_time = 0.0
@@ -60,6 +94,16 @@ class Clock:
         self.timer_faded = False
 
     def draw(self):
+        """
+        Draws the game clock on the screen, including the current time, target time, 
+        and result messages. The clock display changes depending on the game state.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         pyxel.cls(1)  # Dark blue background
         
         if not self.stopped:

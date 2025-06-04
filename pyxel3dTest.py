@@ -114,26 +114,4 @@ class App:
             return (screen_x - 4) / 2, (screen_y - 4) / 2
 
 
-    class Weather:
-        def __init__(self):
-            if not self.checkWeather():
-                print("Weather was not checked, checking now.")
-                self.generateWeather()
-
-            if not self.checkPseudoPoints():
-                print("PseudoPoints were not made, making them now.")
-                self.generatePseudoPoints()
-        
-        def checkWeather(self):
-            return True
-        
-        def generateWeather(self):
-            pass
-        
-        def checkPseudoPoints(self):
-            return True
-
-        def generatePseudoPoints(self):
-            pass
-
 App()
