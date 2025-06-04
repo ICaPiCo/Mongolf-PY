@@ -51,6 +51,8 @@ class ball():
                 self.bY = 228
                 self.bvX = 0
                 self.bvY = 0
+            if pyxel.btnp(pyxel.KEY_A):
+                    self.done = True
 
     def gravity(self):
         if not self.upPressed:
@@ -231,8 +233,6 @@ class Tag:
         if self.timerIs > 50:
             pyxel.text(200, 8, f"Player {self.ball1.tag} lost", 7)
             self.gameOver = True
-            if pyxel.btnp(pyxel.KEY_A):
-                    self.done = True
 
     def debug(self):
         # Debug info for both balls

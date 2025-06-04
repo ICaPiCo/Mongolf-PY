@@ -18,6 +18,9 @@ class Golf:
             pyxel.load("golf.pyxres")
 
     def controls(self):
+        if pyxel.btnp(pyxel.KEY_A):
+            self.done = True
+
         if pyxel.btnp(pyxel.KEY_SPACE):
             self.stopped = False
             self.bvX = cos(radians(self.rotation)) * self.power
@@ -191,8 +194,6 @@ class Golf:
                 self.bX = 20
                 self.bY = 228
                 self.playing = True
-            if pyxel.btnp(pyxel.KEY_A):
-                    self.done = True
 
     def arrow(self):
         if self.stopped:
