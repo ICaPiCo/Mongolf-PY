@@ -116,3 +116,5 @@ class Clock:
         if not self.stopped:
             fade_time = self.target_time // 3
             pyxel.text(10, 180, f"Timer fades at {fade_time}s!", 6)
+
+#Clock()

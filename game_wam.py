@@ -64,3 +64,5 @@ class Wam:
         pyxel.text(10, 10, f"Score: {self.score}", 7)
         pyxel.text(10, 20, f"Time: {int(self.time_left)}", 7)
         pyxel.text(10, 180, "Click the moles!", 7)
+
+#Wam()

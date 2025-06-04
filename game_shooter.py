@@ -228,3 +228,5 @@ class Terrain:
         if self.space:
             for star in self.stars:
                 pyxel.circ(star[0], star[1], random.randint(star[2]-5,star[2]-3), pyxel.COLOR_WHITE)
+
+#Shooter()

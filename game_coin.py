@@ -45,3 +45,5 @@ class Coin:
         # Draw UI
         pyxel.text(10, 10, f"Score: {self.score}", 7)
         pyxel.text(10, 20, f"Time: {int(self.time_left)}", 7)
+
+#Coin()

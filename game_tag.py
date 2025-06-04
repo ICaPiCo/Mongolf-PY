@@ -288,3 +288,4 @@ class Tag:
         self.timer()
         self.isGameOver()
 
+#Tag()

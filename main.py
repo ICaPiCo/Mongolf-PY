@@ -8,25 +8,33 @@ class HotAirBalloonGame:
         pyxel.init(256, 256, title="Hot Air Balloon Adventure", display_scale=4, fps=70)
         pyxel.load("my_resource.pyxres")
         
-        # Game state
         self.current_game = "balloon"
         self.minigame = None
-        
-        # Balloon properties
+
         self.balloon_x = pyxel.width // 2
         self.balloon_y = (pyxel.height // 2) + 50
 
         # Background properties
         self.bg_x = 0
         self.bg_y = 0
-        self.scale = 1
+
         pyxel.mouse(True)
+
         self.dot_positions = [
             (126, 165), (120, 139), (116, 123), 
             (50, 38), (109, 181), (184, 160)
         ]
-    
+        print(f"[INIT] Balloon starting position: ({self.balloon_x}, {self.balloon_y})")
+
     def update(self):
+        """
+        Updates the game state.
+        
+        Checks the current game state and runs either the hot air balloon update
+        or the minigame update.
+        """
+        
+        print(f"[UPDATE] Current game state: {self.current_game}")
         if self.current_game == "balloon":
             self.update_balloon()
         elif self.minigame:
@@ -39,22 +47,55 @@ class HotAirBalloonGame:
             # Add logic to return to balloon game when minigame ends
     
     def update_balloon(self):
-        # Balloon movement controls
+        """
+        Updates the position of the hot air balloon and checks for interactions.
+        
+        This method handles user input to move the balloon position on the screen
+        and checks if the balloon is near any predefined dot positions. If the 
+        balloon is near a dot and the space key is pressed, a minigame is triggered.
+        """
+
+        print(f"[BALLOON] Position: ({self.balloon_x}, {self.balloon_y})")
+        # Movement
         if pyxel.btn(pyxel.KEY_UP):
             self.balloon_y -= 1
+            print(" - Moving UP")
         if pyxel.btn(pyxel.KEY_DOWN):
             self.balloon_y += 1
+            print(" - Moving DOWN")
         if pyxel.btn(pyxel.KEY_LEFT):
             self.balloon_x -= 1
+            print(" - Moving LEFT")
         if pyxel.btn(pyxel.KEY_RIGHT):
             self.balloon_x += 1
+            print(" - Moving RIGHT")
 
-        # Check for minigame trigger
-        distance = min(abs(self.balloon_x - x) + abs(self.balloon_y - y) for x, y in self.dot_positions)
-        if distance < 4 and pyxel.btnp(pyxel.KEY_SPACE):
+        near_dot = False
+        for x, y in self.dot_positions:
+            dist = abs(self.balloon_x - x) + abs(self.balloon_y - y)
+            print(f" - Checking dot at ({x}, {y}) → dist = {dist}")
+            if dist < 4:
+                near_dot = True
+
+        if near_dot:
+            print(" - NEAR DOT")
+        else:
+            print(" - NOT NEAR ANY DOT")
+
+        if pyxel.btnp(pyxel.KEY_SPACE):
+            print(" - SPACE KEY PRESSED")
+        else:
+            print(" - SPACE NOT PRESSED")
+
+        if near_dot and pyxel.btnp(pyxel.KEY_SPACE):
+            print(" >>> Triggering minigame...")
             self.start_minigame()
-    
+
     def start_minigame(self):
+        """
+        Selects and starts a random minigame.
+        """
+        print("[MINIGAME] Selecting and starting minigame...")
         self.current_game = "minigame"
         games = [
             game_clock.Clock,
@@ -64,40 +105,55 @@ class HotAirBalloonGame:
             game_tag.Tag,
             game_wam.Wam
         ]
-        self.minigame = random.choice(games)()
-    
+        MinigameClass = random.choice(minigame_classes)
+        print(f"[MINIGAME] Chosen class: {MinigameClass.__name__}")
+        self.minigame = MinigameClass()
+
     def draw(self):
+        """
+        Renders the current game state on the screen.
+
+        Depending on the current game state, it either draws the hot air balloon
+        scene or delegates the drawing to the currently active minigame.
+        """
+
         if self.current_game == "balloon":
             pyxel.load("my_resource.pyxres")
             self.draw_balloon()
         elif self.minigame:
             self.minigame.draw()
-    
+
     def draw_balloon(self):
+        """
+        Renders the hot air balloon scene.
+
+        This includes drawing the background image, the dots that trigger
+        minigames, and the hot air balloon itself.
+
+        If the balloon is near a dot, it also displays a message prompting
+        the user to press the space bar to start a minigame.
+        """
         pyxel.cls(0)
-        
-        # Draw background sprite
+
         pyxel.blt(
             self.bg_x, self.bg_y,
-            1,                      # Image bank
-            0, 0,                   # Source coordinates
-            256, 256,               # Source dimensions
-            colkey=0,
-            scale=1
+            1, 0, 0, 256, 256,
+            colkey=0, scale=1
         )
-        
-        # Draw all collected dots
+
         for x, y in self.dot_positions:
             pyxel.circ(x, y, 2, pyxel.COLOR_YELLOW)
-        
-        # Draw the hot air balloon
+
         pyxel.circ(self.balloon_x, self.balloon_y, 4, pyxel.COLOR_RED)
 
-        distance = min(abs(self.balloon_x - x) + abs(self.balloon_y - y) for x, y in self.dot_positions)
-        if distance < 4:
-            text = "Want to play a minigame? (SPACE)"
-            pyxel.text((pyxel.width - len(text) * 4)//2, 10, text, pyxel.COLOR_WHITE)
+        near_dot = any(
+            abs(self.balloon_x - x) + abs(self.balloon_y - y) < 4
+            for x, y in self.dot_positions
+        )
+        if near_dot:
+            msg = "Want to play a minigame? (SPACE)"
+            pyxel.text((pyxel.width - len(msg) * 4) // 2, 10, msg, pyxel.COLOR_WHITE)
+            print(" - [DRAW] Showing minigame prompt")
 
-# Create and run the game
 game = HotAirBalloonGame()
 pyxel.run(game.update, game.draw)
