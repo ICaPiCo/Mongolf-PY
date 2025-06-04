@@ -16,7 +16,7 @@ class ball():
         self.tag = 0
 
     def controls(self):
-        if self.player == 1:  # Arrow keys for player 1
+        if self.player == 2:  # Arrow keys for player 1
             if pyxel.btnp(pyxel.KEY_UP):
                 if self.jump > 0:
                     self.bvY -= 2.5
@@ -34,7 +34,7 @@ class ball():
                 self.bvX = 0
                 self.bvY = 0
         
-        elif self.player == 2:  # ZQSD keys for player 2
+        elif self.player == 1:  # ZQSD keys for player 2
             if pyxel.btnp(pyxel.KEY_Z):  # Z = jump
                 if self.jump > 0:
                     self.bvY -= 2.5
@@ -218,7 +218,12 @@ class Tag:
 
     def timer(self):
         self.currentTime = time.monotonic()*100
+        
         self.timerIs = (int(self.currentTime) - int(self.startTime))/100
+        if self.timerIs > 0:
+            self.remainingTime = 50 - self.timerIs
+        else:
+            self.remainingTime = 0
         pyxel.text(0, 8, f"Time:{self.timerIs}", 7)
 
     def isGameOver(self):
