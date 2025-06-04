@@ -20,8 +20,8 @@ class Golf:
     def controls(self):
         if pyxel.btnp(pyxel.KEY_SPACE):
             self.stopped = False
-            self.bvX = int(cos(radians(self.rotation)) * self.power)
-            self.bvY = int(sin(radians(self.rotation)) * self.power)
+            self.bvX = cos(radians(self.rotation)) * self.power
+            self.bvY = sin(radians(self.rotation)) * self.power
 
         elif pyxel.btnp(pyxel.KEY_UP) and self.power < 10:
             self.power += 1
