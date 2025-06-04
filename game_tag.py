@@ -16,6 +16,9 @@ class ball():
         self.tag = 0
 
     def controls(self):
+        if pyxel.btnp(pyxel.KEY_A):
+            self.done = True
+
         if self.player == 2:  # Arrow keys for player 1
             if pyxel.btnp(pyxel.KEY_UP):
                 if self.jump > 0:
@@ -51,8 +54,7 @@ class ball():
                 self.bY = 228
                 self.bvX = 0
                 self.bvY = 0
-            if pyxel.btnp(pyxel.KEY_A):
-                    self.done = True
+            
 
     def gravity(self):
         if not self.upPressed:
