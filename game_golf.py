@@ -90,9 +90,9 @@ class Golf:
                 self.bX = oldX
                 self.bY = oldY
             
-            elif pyxel.pget(x, y) == 6:
-                self.bvX *= 0.90
-                self.bvY *= 0.90
+            elif pyxel.pget(x, y) == 15:
+                self.bvX *= 0.999
+                self.bvY *= 0.999
 
     def textStuff(self):
         if self.holes == 0:

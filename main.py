@@ -5,7 +5,7 @@ import game_clock, game_coin, game_golf, game_shooter, game_tag, game_wam
 class HotAirBalloonGame:
     def __init__(self):
         # Initialize game window
-        pyxel.init(256, 256, title="Hot Air Balloon Adventure", display_scale=3)
+        pyxel.init(256, 256, title="Hot Air Balloon Adventure", display_scale=4, fps=70)
         pyxel.load("my_resource.pyxres")
         
         # Game state

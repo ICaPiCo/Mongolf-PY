@@ -1,5 +1,6 @@
 import pyxel
 import time
+import random
 
 class Wam:
     def __init__(self):

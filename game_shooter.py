@@ -26,8 +26,8 @@ class Shooter:
     
 class Player:
     def __init__(self, enemies):
-        self.x = 400
-        self.y = 280
+        self.x = pyxel.width//2
+        self.y = pyxel.height*2//3
         self.bulletSpeed = 20
         self.smokeSpeed = 2
         self.shots = []
