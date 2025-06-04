@@ -1,5 +1,6 @@
 import pyxel
 import random  # <-- ADDED
+import time
 
 class Coin:
     def __init__(self):
@@ -44,7 +45,7 @@ class Coin:
                 # Add new coin to keep total at 10
                 self.coins.append([random.randint(0, pyxel.width), random.randint(0, pyxel.height)])
 
-        self.time_left -= 1 / (pyxel.frame_count + 1)  # <-- ADDED pyxel.frame_count
+        self.time_left -= 60 / (pyxel.frame_count + 1)  # <-- ADDED pyxel.frame_count
         if self.time_left <= 0:
             print("Game Over! Score:", self.score)
             pyxel.quit()

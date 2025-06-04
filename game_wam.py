@@ -63,7 +63,7 @@ class Wam:
                         mole["visible"] = 0  # Hide immediately
 
         # Update timer
-        self.time_left -= 1 / (pyxel.frame_count + 1)
+        self.time_left -= 60 / (pyxel.frame_count + 1)
         if self.time_left <= 0:
             print(f"Game Over! Final Score: {self.score}")
 
