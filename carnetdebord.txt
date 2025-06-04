@@ -1,0 +1,37 @@
+Cahier de bord :
+
+Aujourd’hui :
+- Essayé de ralentir la balle dans l’eau pour le jeu de minigolf
+- Visé du jeu de minigolf plus précise (enlever les int())
+- Timer pour le minigame clock inversé et à 0 si en dessous de 50
+- Enlève la balle du mur pour le minigame de tag
+- Change l’apparition du vaisseau dans le minigame shooter pour qu’il apparaisse sur l’écran dès le début
+- Inverse l’ordre des balles  et les commandes pour faire plus de sens
+- Change le minigame avec les pièces pour qu’elles apparaissent dans l’écran
+- Change le minigame wam pour ralentir les taupes
+- augmente le nombre de fps pour une fluidité plus grande dans d’autres jeu
+- change valeur de ralentissement de l’eau pour le mini golf
+- enlève tous les inits et les runs dans les minigames
+
+Hier
+- rajoute beacoup de prints pour trobleshoot l’erreur
+- Essaye de fixer les jeu wam
+- Rajout du jeu clock, coin
+- Enlève les holes pour le minigame de golf car ne sert à rien
+- Change le nom des pyxres pour structurer le code
+- Rajoute des explosions pour les enemies dans le shooter game
+- Rajoute de la smoke pour player dans le shooter game
+- Enlève tous les trucs inutiles pour le background
+- simplification du background v2
+- simplification du background v1
+- création d’un dossier pour mettre tous les minigames dedans
+- nouvelle version pour le background
+- change le proof of concept en 3d
+- création d’une version fonctionnelle pour récupérer un point météo
+- création d’un script pour changer les couleurs d’une image pour qu’elle ait les couleurs de pyxel
+- version plus petit de getmeteo qui marche
+- suppression de parties de code inutilisées
+- changement de nom des fichiers
+- test le zoom avec pyxel pour s’habituer à la librairie
+- créations de fichiers de test
+- création du projet

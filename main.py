@@ -4,7 +4,7 @@ import game_clock, game_coin, game_golf, game_shooter, game_tag, game_wam
 
 class HotAirBalloonGame:
     def __init__(self):
-        # Initialize game window
+        print("Initializing game...")
         pyxel.init(256, 256, title="Hot Air Balloon Adventure", display_scale=4, fps=70)
         pyxel.load("my_resource.pyxres")
         
@@ -25,15 +25,20 @@ class HotAirBalloonGame:
             (126, 165), (120, 139), (116, 123), 
             (50, 38), (109, 181), (184, 160)
         ]
+        self.isMenu = True
+        pyxel.run(self.update, self.draw)
     
     def update(self):
-        if self.current_game == "balloon":
-            self.update_balloon()
-        elif self.minigame:
-            self.minigame.update()  # <--- this must come FIRST
-            if getattr(self.minigame, "done", False):
-                self.current_game = "balloon"
-                self.minigame = None
+        if self.isMenu:
+            self.menuUpdate()
+        else:
+            if self.current_game == "balloon":
+                self.update_balloon()
+            elif self.minigame:
+                self.minigame.update()  # <--- this must come FIRST
+                if getattr(self.minigame, "done", False):
+                    self.current_game = "balloon"
+                    self.minigame = None
 
 
             # Add logic to return to balloon game when minigame ends
@@ -66,12 +71,24 @@ class HotAirBalloonGame:
         ]
         self.minigame = random.choice(games)()
     
+    def menuUpdate(self):
+        if pyxel.btnp(pyxel.KEY_SPACE):
+            self.isMenu = False
+
+    def menuDraw(self):
+        pyxel.cls(0)
+        pyxel.text(50, 50, "Hot Air Balloon Adventure", pyxel.COLOR_YELLOW)
+        pyxel.text(50, 100, "Want to play a minigame? (SPACE)", pyxel.COLOR_YELLOW)
+
     def draw(self):
-        if self.current_game == "balloon":
-            pyxel.load("my_resource.pyxres")
-            self.draw_balloon()
-        elif self.minigame:
-            self.minigame.draw()
+        if self.isMenu:
+            self.menuDraw()
+        else:
+            if self.current_game == "balloon":
+                pyxel.load("my_resource.pyxres")
+                self.draw_balloon()
+            elif self.minigame:
+                self.minigame.draw()
     
     def draw_balloon(self):
         pyxel.cls(0)
@@ -98,6 +115,6 @@ class HotAirBalloonGame:
             text = "Want to play a minigame? (SPACE)"
             pyxel.text((pyxel.width - len(text) * 4)//2, 10, text, pyxel.COLOR_WHITE)
 
+
 # Create and run the game
 game = HotAirBalloonGame()
-pyxel.run(game.update, game.draw)

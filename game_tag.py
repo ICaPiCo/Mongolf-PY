@@ -16,9 +16,6 @@ class ball():
         self.tag = 0
 
     def controls(self):
-        if pyxel.btnp(pyxel.KEY_A):
-            self.done = True
-
         if self.player == 2:  # Arrow keys for player 1
             if pyxel.btnp(pyxel.KEY_UP):
                 if self.jump > 0:
@@ -253,6 +250,9 @@ class Tag:
         pyxel.text(0, 104, "R=Reset P1, T=Reset P2", 7)
 
     def update(self):
+        if pyxel.btnp(pyxel.KEY_A):
+            self.done = True
+        
         self.ball1.update()
         self.ball2.update()
         
