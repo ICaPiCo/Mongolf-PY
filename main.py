@@ -68,6 +68,7 @@ class HotAirBalloonGame:
     
     def draw(self):
         if self.current_game == "balloon":
+            pyxel.load("my_resource.pyxres")
             self.draw_balloon()
         elif self.minigame:
             self.minigame.draw()
