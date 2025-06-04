@@ -15,7 +15,7 @@ class HotAirBalloonGame:
         # Balloon properties
         self.balloon_x = pyxel.width // 2
         self.balloon_y = (pyxel.height // 2) + 50
-        
+
         # Background properties
         self.bg_x = 0
         self.bg_y = 0
@@ -52,12 +52,12 @@ class HotAirBalloonGame:
     def start_minigame(self):
         self.current_game = "minigame"
         games = [
-            game_clock.Clock(),
-            game_coin.Coin(),
-            game_golf.Golf(),
-            game_shooter.Shooter(),
-            game_tag.Tag(),
-            game_wam.Wam()
+            game_clock.Clock,
+            game_coin.Coin,
+            game_golf.Golf,
+            game_shooter.Shooter,
+            game_tag.Tag,
+            game_wam.Wam
         ]
         self.minigame = random.choice(games)()
     

@@ -4,14 +4,12 @@ import math
 
 class Shooter:
     def __init__(self):
-        pyxel.init(600, 500, "Top Shooter", display_scale=2, fps=70)
         pyxel.load("shooter.pyxres")
         self.terrain = Terrain()
         self.enemies = Enemies()
         self.player = Player(self.enemies)
         self.score = 0
         self.game_over = False
-        pyxel.run(self.update, self.draw)
     
     def update(self):
         if not self.game_over:

@@ -8,8 +8,6 @@ class Coin:
         self.time_left = 30
         self.player_x = 300  # <-- ADDED
         self.player_y = 200  # <-- ADDED
-        pyxel.init(600, 400, title="Coin Game")
-        pyxel.run(self.update, self.draw)
 
     def update(self):
         if pyxel.btn(pyxel.KEY_LEFT):  # <-- CHANGED to btn() for smooth movement

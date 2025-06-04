@@ -15,9 +15,7 @@ class Golf:
             self.power = 3
             self.rotation = 270
             self.holes = 0
-            pyxel.init(256, 256, title="Golf", fps=120, display_scale=4)
             pyxel.load("golf.pyxres")
-            pyxel.run(self.update, self.draw)
 
     def controls(self):
         if pyxel.btnp(pyxel.KEY_SPACE):

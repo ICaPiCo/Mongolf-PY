@@ -4,7 +4,6 @@ import random
 
 class Clock:
     def __init__(self):
-        pyxel.init(200, 200, title="Stop the Clock!", fps=60)
         self.target_time = random.randint(5, 20)
         self.start_time = time.time()
         self.current_time = 0.0
@@ -15,7 +14,6 @@ class Clock:
         self.show_result = False
         self.timer_faded = False
         self.fade_alpha = 1.0
-        pyxel.run(self.update, self.draw)
 
     def update(self):
         if not self.stopped and not self.game_over:

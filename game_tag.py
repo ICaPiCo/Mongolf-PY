@@ -201,7 +201,6 @@ class terrain():
 
 class Tag:
     def __init__(self):
-        pyxel.init(256, 256, title="Tag", fps=50, display_scale=4)
         pyxel.load("tag.pyxres")  # Make sure this file exists
         
         # Create instances as class attributes
@@ -216,7 +215,6 @@ class Tag:
         self.timerIs = 0
         
         self.startTime = time.monotonic()*100
-        pyxel.run(self.update, self.draw)
 
     def timer(self):
         self.currentTime = time.monotonic()*100

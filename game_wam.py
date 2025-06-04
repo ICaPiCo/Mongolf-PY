@@ -1,9 +1,8 @@
 import pyxel
-import clock
+import time
 
 class Wam:
     def __init__(self):
-        pyxel.init(200, 200, title="Whack-a-Mole!")
         pyxel.mouse(True)
         self.moles = [
             {"x": 40, "y": 50, "visible": 0, "points": 1},
@@ -15,7 +14,6 @@ class Wam:
         ]
         self.score = 0
         self.time_left = 60  # 60 seconds
-        pyxel.run(self.update, self.draw)
 
     def update(self):
         # Randomly show moles
