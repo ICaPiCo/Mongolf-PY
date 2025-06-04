@@ -10,12 +10,15 @@ class Shooter:
         self.player = Player(self.enemies)
         self.score = 0
         self.game_over = False
+        self.done = False
     
     def update(self):
         if not self.game_over:
             self.terrain.update()
             self.enemies.update()
             self.player.update()
+        if pyxel.btnp(pyxel.KEY_A):
+                    self.done = True
 
     def draw(self):
         if not self.game_over:

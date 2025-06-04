@@ -8,6 +8,7 @@ class Coin:
         self.time_left = 30
         self.player_x = pyxel.width//2  # <-- ADDED
         self.player_y = pyxel.height//2  # <-- ADDED
+        self.done = False
 
     def update(self):
         if pyxel.btn(pyxel.KEY_LEFT):  # <-- CHANGED to btn() for smooth movement
@@ -18,6 +19,8 @@ class Coin:
             self.player_y -= 3
         if pyxel.btn(pyxel.KEY_DOWN):
             self.player_y += 3
+        if pyxel.btnp(pyxel.KEY_A):
+            self.done = True
 
         # Coin collision check
         for coin in self.coins[:]:

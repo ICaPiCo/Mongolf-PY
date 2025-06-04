@@ -15,6 +15,7 @@ class Wam:
         ]
         self.score = 0
         self.time_left = 60  # 60 seconds
+        self.done = False
 
     def update(self):
         # Randomly show moles
@@ -43,7 +44,9 @@ class Wam:
         self.time_left -= 1 / (pyxel.frame_count + 1)
         if self.time_left <= 0:
             print(f"Game Over! Final Score: {self.score}")
-            pyxel.quit()
+
+        if pyxel.btnp(pyxel.KEY_A):
+            self.done = True
 
     def draw(self):
         pyxel.cls(0)

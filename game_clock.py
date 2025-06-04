@@ -14,6 +14,7 @@ class Clock:
         self.show_result = False
         self.timer_faded = False
         self.fade_alpha = 1.0
+        self.done = False
 
     def update(self):
         if not self.stopped and not self.game_over:
@@ -43,6 +44,8 @@ class Clock:
             if self.fade_timer > 180:  # Show result for 3 seconds
                 if pyxel.btnp(pyxel.KEY_R):
                     self.restart_game()
+                if pyxel.btnp(pyxel.KEY_A):
+                    self.done = True
                     
     def restart_game(self):
         """Reset the game state"""
@@ -101,6 +104,7 @@ class Clock:
                 # Show restart instruction after a delay
                 if self.fade_timer > 60:
                     pyxel.text(70, 150, "Press R to restart", 6)
+                    pyxel.text(70, 158, "Press Q to go back", 6)
         
         # Target hint (always visible)
         pyxel.text(70, 30, f"Target: {self.target_time}s", 12)

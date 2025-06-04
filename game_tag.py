@@ -213,6 +213,7 @@ class Tag:
         self.terrain = terrain()
         self.gameOver = False
         self.timerIs = 0
+        self.done = False
         
         self.startTime = time.monotonic()*100
 
@@ -230,6 +231,8 @@ class Tag:
         if self.timerIs > 50:
             pyxel.text(200, 8, f"Player {self.ball1.tag} lost", 7)
             self.gameOver = True
+            if pyxel.btnp(pyxel.KEY_A):
+                    self.done = True
 
     def debug(self):
         # Debug info for both balls

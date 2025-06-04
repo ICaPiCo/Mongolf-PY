@@ -191,6 +191,8 @@ class Golf:
                 self.bX = 20
                 self.bY = 228
                 self.playing = True
+            if pyxel.btnp(pyxel.KEY_A):
+                    self.done = True
 
     def arrow(self):
         if self.stopped:

@@ -30,7 +30,12 @@ class HotAirBalloonGame:
         if self.current_game == "balloon":
             self.update_balloon()
         elif self.minigame:
-            self.minigame.update()
+            self.minigame.update()  # <--- this must come FIRST
+            if getattr(self.minigame, "done", False):
+                self.current_game = "balloon"
+                self.minigame = None
+
+
             # Add logic to return to balloon game when minigame ends
     
     def update_balloon(self):
