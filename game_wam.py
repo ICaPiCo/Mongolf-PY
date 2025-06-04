@@ -18,7 +18,7 @@ class Wam:
 
     def update(self):
         # Randomly show moles
-        if pyxel.frame_count % 30 == 0:  # Every half second
+        if pyxel.frame_count % 80 == 0:  # Every half second
             mole = random.choice(self.moles)
             if mole["visible"] <= 0:
                 mole["visible"] = 30  # Visible for 30 frames (~1 sec)

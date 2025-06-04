@@ -5,7 +5,7 @@ import time
 
 class ball():
     def __init__(self, n):
-        self.bX = 225 if n == 1 else 20  # Different starting positions
+        self.bX = 20 if n == 1 else 255 # Different starting positions
         self.bY = 228
         self.bvX = 0
         self.bvY = 0
